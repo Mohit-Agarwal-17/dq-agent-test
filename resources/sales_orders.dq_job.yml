@@ -1,0 +1,24 @@
+# dq-agent: runs the pipeline then DQX dataset-level checks. If an orchestration job already exists for
+# this pipeline, the agent adds the dqx task to it instead of creating this file (EnrichmentPlan.edits).
+resources:
+  jobs:
+    sales_orders_dq:
+      name: sales_orders_dq
+      max_concurrent_runs: 1
+      tasks:
+        - task_key: run_pipeline
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.sales_orders.id}
+        - task_key: dqx_checks
+          depends_on:
+            - task_key: run_pipeline
+          environment_key: dq
+          spark_python_task:
+            python_file: ../src/sales_orders/jobs/dqx_checks.py
+            parameters: ["--ops-catalog", "${var.dq_ops_catalog}", "--pipeline-key", "sales_orders", "--catalog", "${var.catalog}"]
+      environments:
+        - environment_key: dq
+          spec:
+            client: "2"
+            dependencies:
+              - "databricks-labs-dqx==0.17.1"

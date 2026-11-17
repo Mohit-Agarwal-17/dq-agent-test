@@ -11,6 +11,9 @@ variables:
   landing_root:
     description: Root path of landed source files
     default: /Volumes/dev_lake/landing/files
+  dq_ops_catalog:  # dq-agent
+    description: Catalog holding the DQ rule registry (dq-agent)
+    default: sandisk_poc_dq
 
 targets:
   dev:

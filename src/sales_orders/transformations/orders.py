@@ -2,8 +2,11 @@ from pyspark import pipelines as dp
 from pyspark.sql import functions as F
 from pyspark.sql.window import Window
 
+from lib.dq import rules_for  # dq-agent: rules are data in <ops_catalog>.dq.rules (status-filtered)
+
 
 @dp.table(name="bronze.orders_raw", comment="Raw orders landed from source")
+@dp.expect_all(rules_for(spark, "bronze.orders_raw", "warn"))  # dq-agent
 def orders_raw():
     return (
         spark.readStream.format("cloudFiles")
@@ -14,6 +17,8 @@ def orders_raw():
 
 
 @dp.materialized_view(name="silver.orders", comment="Latest version of each order")
+@dp.expect_all(rules_for(spark, "silver.orders", "warn"))  # dq-agent
+@dp.expect_all_or_drop(rules_for(spark, "silver.orders", "drop"))  # dq-agent: empty until rules graduate (CT-10)
 def orders():
     w = Window.partitionBy("order_id").orderBy(F.col("updated_at").desc())
     return (
@@ -27,6 +32,7 @@ def orders():
 
 
 @dp.materialized_view(name="gold.orders_daily", comment="Daily revenue by region")
+@dp.expect_all(rules_for(spark, "gold.orders_daily", "warn"))  # dq-agent
 def orders_daily():
     return (
         spark.read.table("silver.orders")
