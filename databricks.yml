@@ -1,0 +1,19 @@
+bundle:
+  name: lakeflow_pipelines
+
+include:
+  - resources/*.yml
+
+variables:
+  catalog:
+    description: Catalog the pipelines publish to
+    default: dev_lake
+  landing_root:
+    description: Root path of landed source files
+    default: /Volumes/dev_lake/landing/files
+
+targets:
+  dev:
+    # no `mode: development`: it renames pipelines to "[dev <user>] <name>" and the agent finds a deployed
+    # pipeline by its bundle name
+    default: true

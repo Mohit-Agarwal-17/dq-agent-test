@@ -1,0 +1,12 @@
+resources:
+  pipelines:
+    sales_orders:
+      name: sales_orders
+      catalog: ${var.catalog}
+      schema: silver
+      serverless: true
+      libraries:
+        - glob:
+            include: ../src/sales_orders/transformations/**
+      configuration:
+        factory.landing_root: ${var.landing_root}

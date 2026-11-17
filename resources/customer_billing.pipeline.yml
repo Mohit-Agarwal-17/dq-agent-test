@@ -1,0 +1,12 @@
+resources:
+  pipelines:
+    customer_billing:
+      name: customer_billing
+      catalog: ${var.catalog}
+      schema: silver
+      serverless: true
+      libraries:
+        - glob:
+            include: ../src/customer_billing/transformations/**
+      configuration:
+        landing_root: ${var.landing_root}
